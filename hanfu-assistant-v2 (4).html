@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="汉服助手">
+<meta name="theme-color" content="#e8f5fc">
+<title>汉服 · 缠花助手</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ── 色彩系统 ─────────────────────────────────────── */
+:root {
+  --bg:        #f5fbff;   /* 月白底 */
+  --bg2:       #eaf4fc;   /* 浅天青面 */
+  --bg3:       #dceefa;   /* 天青主 */
+  --blue:      #c8e2f5;   /* 天青深 */
+  --blue-dark: #1e5070;   /* 字色·深蓝 */
+  --blue-mid:  #4a88b0;   /* 辅助文字蓝 */
+  --violet:    #eee8f8;   /* 浅薰紫 */
+  --violet-d:  #5c4880;   /* 薰紫字色 */
+  --violet-m:  #9888b8;   /* 薰紫辅色 */
+  --pink:      #fae8f0;   /* 浅樱粉 */
+  --pink-d:    #804060;   /* 樱粉字色 */
+  --pink-m:    #b07898;   /* 樱粉辅色 */
+  --white:     #ffffff;
+  --border:    rgba(140,190,220,0.22);
+  --border2:   rgba(140,190,220,0.38);
+  --text:      #1e5070;
+  --text2:     #4a7898;
+  --text3:     #8ab8cc;
+  --serif:     'Noto Serif SC', serif;
+  --sans:      'Noto Sans SC', sans-serif;
+  --r:         16px;
+  --r-s:       10px;
+  --nav-h:     62px;
+  --shadow:    0 2px 18px rgba(60,140,200,0.08);
+}
+
+/* ── Reset ───────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+
+/* ── App shell ───────────────────────────────────── */
+.app{display:flex;flex-direction:column;height:100dvh;max-width:480px;margin:0 auto;position:relative;overflow:hidden}
+.screen{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--nav-h) + 16px)}
+
+/* ── Page fade-in ────────────────────────────────── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.screen > *{animation:fadeUp .3s ease both}
+
+/* ── Bottom nav ──────────────────────────────────── */
+.nav{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:480px;height:var(--nav-h);
+  background:var(--bg2);border-top:1px solid var(--border);
+  display:flex;align-items:stretch;z-index:100;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:none;background:transparent;cursor:pointer;color:var(--text3);transition:color .18s;padding:6px 4px;font-family:var(--sans)}
+.nb.on{color:var(--blue-dark)}
+.nb svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
+.nb.on svg{transform:translateY(-1px)}
+.nb span{font-size:10px}
+.nb-dot{width:4px;height:4px;border-radius:50%;background:currentColor;opacity:0;transition:opacity .18s;margin-top:1px}
+.nb.on .nb-dot{opacity:1}
+
+/* ── Page header ─────────────────────────────────── */
+.ph{padding:22px 18px 10px}
+.ph-title{font-family:var(--serif);font-size:20px;font-weight:500;color:var(--blue-dark);letter-spacing:.02em}
+.ph-sub{font-size:12px;color:var(--text3);margin-top:4px}
+
+/* ── Section ─────────────────────────────────────── */
+.sec{padding:8px 18px}
+.sec-label{font-size:11px;color:var(--text3);letter-spacing:.07em;margin-bottom:8px;font-weight:500}
+
+/* ── Cards ───────────────────────────────────────── */
+.card{background:var(--white);border-radius:var(--r);border:1px solid var(--border);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow)}
+.card-blue{background:var(--bg3);border-color:rgba(140,190,220,0.28)}
+.card-violet{background:var(--violet);border-color:rgba(180,160,220,0.25)}
+.card-pink{background:var(--pink);border-color:rgba(220,160,190,0.25)}
+
+/* ── Stats ───────────────────────────────────────── */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.stat{border-radius:var(--r-s);padding:10px 8px;text-align:center}
+.stat-n{font-size:24px;font-family:var(--serif);font-weight:500}
+.stat-l{font-size:10px;margin-top:2px}
+.stat-b{background:var(--bg3)}.stat-b .stat-n{color:var(--blue-dark)}.stat-b .stat-l{color:var(--blue-mid)}
+.stat-v{background:var(--violet)}.stat-v .stat-n{color:var(--violet-d)}.stat-v .stat-l{color:var(--violet-m)}
+.stat-p{background:var(--pink)}.stat-p .stat-n{color:var(--pink-d)}.stat-p .stat-l{color:var(--pink-m)}
+
+/* ── Buttons ─────────────────────────────────────── */
+.btn{display:block;width:100%;padding:12px;font-size:14px;font-family:var(--sans);border-radius:var(--r-s);border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;transition:all .15s;text-align:center}
+.btn:active{transform:scale(.98)}
+.btn:hover{background:var(--bg2)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-b{background:var(--blue);color:var(--blue-dark);border-color:rgba(140,190,220,0.4)}
+.btn-b:hover{background:var(--bg3)}
+.btn-v{background:var(--violet);color:var(--violet-d);border-color:rgba(180,160,220,0.35)}
+.btn-v:hover{background:#e6e0f5}
+.btn-p{background:var(--pink);color:var(--pink-d);border-color:rgba(220,160,190,0.35)}
+.btn-p:hover{background:#f5e0ea}
+.btn-sm{width:auto;padding:6px 14px;font-size:12px;display:inline-block}
+.btn-ghost{border-color:transparent;color:var(--text2)}
+.btn-row{display:flex;gap:8px}
+
+/* ── Form ────────────────────────────────────────── */
+.lbl{font-size:12px;color:var(--text2);display:block;margin:10px 0 4px}
+input[type=text],select,textarea{
+  width:100%;padding:10px 12px;font-size:14px;font-family:var(--sans);
+  border-radius:var(--r-s);border:1px solid var(--border2);
+  background:var(--bg);color:var(--text);outline:none;transition:border-color .15s
+}
+input:focus,select:focus,textarea:focus{border-color:var(--blue-mid)}
+textarea{resize:none;min-height:78px;line-height:1.65}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a88b0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+
+/* ── Upload zone ─────────────────────────────────── */
+.upload-zone{border:1.5px dashed var(--border2);border-radius:var(--r);padding:22px 16px;text-align:center;cursor:pointer;background:var(--bg2);transition:border-color .15s;position:relative;overflow:hidden}
+.upload-zone:hover{border-color:var(--blue-mid)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0}
+.uz-ico{font-size:30px;margin-bottom:8px}
+.uz-txt{font-size:13px;color:var(--text2)}
+.uz-sub{font-size:11px;color:var(--text3);margin-top:3px}
+.upload-preview{width:100%;border-radius:var(--r-s);margin-top:10px;display:block;max-height:240px;object-fit:cover}
+
+/* ── AI result box ───────────────────────────────── */
+.ai-box{background:var(--bg3);border:1px solid rgba(140,190,220,0.28);border-radius:var(--r);padding:14px 16px;margin-top:10px}
+.ai-box-v{background:var(--violet);border-color:rgba(180,160,220,0.28)}
+.ai-lbl{font-size:11px;color:var(--blue-mid);font-weight:500;margin-bottom:6px;letter-spacing:.04em}
+.ai-lbl-v{color:var(--violet-m)}
+.ai-text{font-size:14px;line-height:1.85;color:var(--text);white-space:pre-wrap}
+.ai-ph{color:var(--text3);font-size:13px;font-style:italic}
+@keyframes breathe{0%,100%{opacity:.45}50%{opacity:.9}}
+.loading{animation:breathe 1.1s infinite;color:var(--text2);font-size:13px}
+
+/* ── Tags ────────────────────────────────────────── */
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.tag{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);color:var(--text2);cursor:pointer;transition:all .15s;background:var(--white)}
+.tag.on{background:var(--bg3);color:var(--blue-dark);border-color:rgba(140,190,220,0.5)}
+.tag.on-v{background:var(--violet);color:var(--violet-d);border-color:rgba(180,160,220,0.5)}
+.tag.on-p{background:var(--pink);color:var(--pink-d);border-color:rgba(220,160,190,0.5)}
+
+/* ── Wardrobe grid ───────────────────────────────── */
+.wgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hf-card{background:var(--white);border-radius:var(--r);border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:border-color .15s;position:relative}
+.hf-card:hover{border-color:var(--border2)}
+.hf-thumb{width:100%;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;font-size:40px;overflow:hidden;position:relative}
+.hf-thumb img{width:100%;height:100%;object-fit:cover}
+.hf-info{padding:8px 10px}
+.hf-name{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hf-meta{font-size:11px;color:var(--text3);margin-top:1px}
+.hf-del{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:rgba(30,80,112,.22);border:none;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;line-height:1}
+.hf-card:hover .hf-del{opacity:1}
+.add-card{border:1.5px dashed var(--border2);border-radius:var(--r);min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;color:var(--text3);font-size:13px;transition:all .15s;background:var(--bg2)}
+.add-card:hover{border-color:var(--blue-mid);color:var(--blue-mid)}
+
+/* ── Thread swatches ─────────────────────────────── */
+.thread-grid{display:flex;flex-direction:column;gap:8px}
+.thread-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--white);border-radius:var(--r-s);border:1px solid var(--border)}
+.thread-dot{width:40px;height:40px;border-radius:50%;flex-shrink:0;border:2px solid rgba(255,255,255,.85)}
+.thread-info{flex:1;min-width:0}
+.thread-name{font-size:14px;font-weight:500;color:var(--text)}
+.thread-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.thread-stock{font-size:11px;font-weight:500}
+.stock-full{color:#3a9a6a}.stock-low{color:#c09020}.stock-none{color:var(--text3)}
+
+/* ── Palette chips ───────────────────────────────── */
+.pal-row{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.pal-chip{text-align:center}
+.pal-circle{width:42px;height:42px;border-radius:50%;border:1px solid var(--border);margin:0 auto 4px}
+.pal-role{font-size:10px;color:var(--text2);font-weight:500}
+.pal-name{font-size:10px;color:var(--text3)}
+
+/* ── Color picker grid ───────────────────────────── */
+.cp-grid{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.cp-dot{width:34px;height:34px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .12s}
+.cp-dot.on{border-color:var(--blue-dark);transform:scale(1.14)}
+
+/* ── Inspo grid ──────────────────────────────────── */
+.igrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.i-card{background:var(--white);border-radius:var(--r);border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:border-color .15s}
+.i-card:hover{border-color:var(--border2)}
+.i-thumb{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:28px}
+.i-info{padding:8px 10px}
+.i-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:1px}
+.i-sub{font-size:11px;color:var(--text3)}
+
+/* ── Modal ───────────────────────────────────────── */
+.modal{position:fixed;inset:0;background:rgba(30,80,112,.28);display:flex;align-items:flex-end;justify-content:center;z-index:200;opacity:0;pointer-events:none;transition:opacity .22s}
+.modal.open{opacity:1;pointer-events:all}
+.modal-sheet{background:var(--white);border-radius:var(--r) var(--r) 0 0;width:100%;max-width:480px;padding:20px 18px 36px;transform:translateY(100%);transition:transform .26s cubic-bezier(.3,0,.1,1);max-height:92dvh;overflow-y:auto}
+.modal.open .modal-sheet{transform:translateY(0)}
+.modal-handle{width:36px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto 18px}
+.modal-title{font-family:var(--serif);font-size:16px;font-weight:500;color:var(--blue-dark);margin-bottom:14px}
+
+/* ── Toast ───────────────────────────────────────── */
+.toast{position:fixed;bottom:calc(var(--nav-h)+14px);left:50%;transform:translateX(-50%) translateY(16px);background:var(--blue-dark);color:#e8f5fc;border-radius:20px;padding:8px 20px;font-size:13px;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:300;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── Scroll hint ─────────────────────────────────── */
+.hscroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.hscroll::-webkit-scrollbar{display:none}
+
+/* ── Divider ─────────────────────────────────────── */
+.divider{height:1px;background:var(--border);margin:12px 0}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}
+.flex1{flex:1}
+
+/* ── Empty state ─────────────────────────────────── */
+.empty{text-align:center;padding:44px 20px;color:var(--text3);font-size:13px}
+.empty-ico{font-size:38px;margin-bottom:10px}
+
+/* ── Decorative header art ───────────────────────── */
+.art-header{width:100%;height:80px;position:relative;overflow:hidden;background:var(--bg3)}
+.art-header svg{position:absolute;bottom:0;left:0;width:100%}
+
+/* ── Hanfu scroll pick ───────────────────────────── */
+.hf-pick{flex-shrink:0;width:72px;cursor:pointer;border-radius:12px;border:1.5px solid var(--border);overflow:hidden;transition:border-color .15s}
+.hf-pick.on{border-color:var(--blue-mid)}
+.hf-pick-thumb{width:72px;height:90px;display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden}
+.hf-pick-thumb img{width:100%;height:100%;object-fit:cover}
+.hf-pick-name{padding:3px 5px;font-size:10px;color:var(--text2);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="screen" id="s-wardrobe"></div>
+  <div class="screen" id="s-zhanghua" style="display:none"></div>
+  <div class="screen" id="s-match"    style="display:none"></div>
+  <div class="screen" id="s-threads"  style="display:none"></div>
+  <div class="screen" id="s-inspo"    style="display:none"></div>
+
+  <nav class="nav">
+    <button class="nb on" onclick="go('wardrobe',this)">
+      <svg viewBox="0 0 24 24"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>
+      <span>衣柜</span><div class="nb-dot"></div>
+    </button>
+    <button class="nb" onclick="go('zhanghua',this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+      <span>缠花</span><div class="nb-dot"></div>
+    </button>
+    <button class="nb" onclick="go('match',this)">
+      <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      <span>搭配</span><div class="nb-dot"></div>
+    </button>
+    <button class="nb" onclick="go('threads',this)">
+      <svg viewBox="0 0 24 24"><path d="M12 22C6.5 22 2 17.5 2 12S6.5 2 12 2s10 4.5 10 10"/><path d="M12 22c-2.5 0-4-5-4-10S9.5 2 12 2"/><path d="M2 12h10M21.5 12H16M19 15l3-3-3-3"/></svg>
+      <span>丝线</span><div class="nb-dot"></div>
+    </button>
+    <button class="nb" onclick="go('inspo',this)">
+      <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+      <span>收藏</span><div class="nb-dot"></div>
+    </button>
+  </nav>
+<div style="position:fixed;bottom:calc(var(--nav-h) + 8px);right:12px;z-index:101">
+  <button onclick="resetKey()" style="width:32px;height:32px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="更换 API Key">⚙</button>
+</div>
+</div>
+
+<!-- ══ 添加汉服 Modal ══════════════════════════════ -->
+<div class="modal" id="m-hf" onclick="closeM('m-hf')">
+<div class="modal-sheet" onclick="event.stopPropagation()">
+  <div class="modal-handle"></div>
+  <div class="modal-title">添加汉服</div>
+  <div class="upload-zone">
+    <input type="file" accept="image/*" onchange="onHfImg(event)">
+    <div class="uz-ico">📷</div>
+    <div class="uz-txt">拍照 / 上传商家图</div>
+    <div class="uz-sub">AI 自动识别制式与颜色</div>
+  </div>
+  <img id="hf-img" class="upload-preview" style="display:none">
+  <div class="ai-box mt12" id="hf-ai" style="display:none">
+    <div class="ai-lbl">✦ AI 识别</div>
+    <div class="ai-text" id="hf-ai-t"></div>
+  </div>
+  <label class="lbl">名称</label>
+  <input type="text" id="hf-name" placeholder="例：淡粉宋制齐胸">
+  <label class="lbl">制式</label>
+  <select id="hf-style"><option value="">请选择</option><option>宋制</option><option>明制</option><option>唐制</option><option>魏晋</option><option>汉元素</option><option>其他</option></select>
+  <label class="lbl">主色调</label>
+  <input type="text" id="hf-color" placeholder="例：藕荷色、天青、胭脂红">
+  <label class="lbl">适合场合</label>
+  <input type="text" id="hf-occ" placeholder="例：日常，花朝节，茶会">
+  <label class="lbl">备注</label>
+  <textarea id="hf-desc" placeholder="描述款式、刺绣、搭配心得…"></textarea>
+  <div style="display:flex;gap:8px">
+    <div style="flex:1"><label class="lbl">裙长（cm）</label><input type="text" id="hf-skirtlen" placeholder="例：95"></div>
+    <div style="flex:1"><label class="lbl">裙门宽（cm）</label><input type="text" id="hf-skirtw" placeholder="例：68"></div>
+  </div>
+  <div class="btn-row mt12">
+    <button class="btn btn-b flex1" onclick="saveHf()">保存到衣柜</button>
+    <button class="btn btn-ghost btn-sm" onclick="closeM('m-hf')">取消</button>
+  </div>
+</div></div>
+
+<!-- ══ 上身效果 Modal ═══════════════════════════════ -->
+<div class="modal" id="m-tryon" onclick="closeM('m-tryon')">
+<div class="modal-sheet" onclick="event.stopPropagation()">
+  <div class="modal-handle"></div>
+  <div class="modal-title">👤 上身效果预测</div>
+  <div class="upload-zone">
+    <input type="file" accept="image/*" onchange="onTryonImg(event)">
+    <div class="uz-ico">📷</div>
+    <div class="uz-txt">上传你的照片</div>
+    <div class="uz-sub">AI 根据你的身材描述穿上效果</div>
+  </div>
+  <img id="tryon-img" class="upload-preview" style="display:none">
+  <label class="lbl">选择要试穿的汉服</label>
+  <select id="tryon-hf-sel"><option value="">请选择</option></select>
+  <label class="lbl">或者描述</label>
+  <input type="text" id="tryon-desc" placeholder="例：天青色宋制齐胸，裙长95cm">
+  <button class="btn btn-b mt12" onclick="doTryon()" id="tryon-btn">✦ 分析上身效果</button>
+  <div class="ai-box mt12" id="tryon-ai" style="display:none">
+    <div class="ai-lbl">✦ 上身效果</div>
+    <div class="ai-text" id="tryon-ai-t"></div>
+  </div>
+</div></div>
+
+<!-- ══ 购买建议 Modal ═══════════════════════════════ -->
+<div class="modal" id="m-buy" onclick="closeM('m-buy')">
+<div class="modal-sheet" onclick="event.stopPropagation()">
+  <div class="modal-handle"></div>
+  <div class="modal-title">🛍️ 购买建议</div>
+  <div class="upload-zone">
+    <input type="file" accept="image/*" onchange="onBuyImg(event)">
+    <div class="uz-ico">🛍️</div>
+    <div class="uz-txt">上传商家图（可选）</div>
+    <div class="uz-sub">或直接文字描述</div>
+  </div>
+  <img id="buy-img" class="upload-preview" style="display:none">
+  <label class="lbl">描述想买的汉服</label>
+  <textarea id="buy-desc" placeholder="例：看到一件胭脂红明制马面裙套装，600元，商家说适合节日…"></textarea>
+  <button class="btn btn-b mt12" onclick="doBuy()" id="buy-btn">根据衣橱分析是否该买 ↗</button>
+  <div class="ai-box mt12" id="buy-ai" style="display:none">
+    <div class="ai-lbl">✦ 购买建议</div>
+    <div class="ai-text" id="buy-ai-t"></div>
+  </div>
+</div></div>
+
+<!-- ══ 缠花图纸 Modal ═══════════════════════════════ -->
+<div class="modal" id="m-zh" onclick="closeM('m-zh')">
+<div class="modal-sheet" onclick="event.stopPropagation()">
+  <div class="modal-handle"></div>
+  <div class="modal-title">上传图纸 · AI 配色</div>
+  <div class="upload-zone">
+    <input type="file" accept="image/*" onchange="onZhImg(event)">
+    <div class="uz-ico">🎨</div>
+    <div class="uz-txt">上传缠花图纸</div>
+    <div class="uz-sub">手绘线稿 / 打印图纸 / 电子线稿</div>
+  </div>
+  <img id="zh-img" class="upload-preview" style="display:none">
+  <label class="lbl">题材</label>
+  <select id="zh-type"><option value="">不限 / AI 自动判断</option><option>梅花</option><option>牡丹</option><option>蝴蝶</option><option>鸟羽</option><option>竹叶</option><option>流苏</option><option>祥云</option></select>
+  <label class="lbl">风格</label>
+  <div class="tags" id="zh-style-tags"></div>
+  <label class="lbl">参考汉服（可选）</label>
+  <select id="zh-hf-ref"><option value="">不参考，自由配色</option></select>
+  <button class="btn btn-v mt12" onclick="doZh()" id="zh-btn">🎨 用我的丝线涂色</button>
+  <div class="ai-box ai-box-v mt12" id="zh-ai" style="display:none">
+    <div class="ai-lbl ai-lbl-v">✦ 配色效果</div>
+    <div id="zh-colored-img" style="margin-bottom:10px;display:none">
+      <img id="zh-result-img" style="width:100%;border-radius:10px;display:block">
+      <div style="font-size:11px;color:var(--violet-m);margin-top:5px;text-align:center">AI 根据你的丝线库生成的涂色效果</div>
+    </div>
+    <div class="pal-row" id="zh-pal"></div>
+    <div class="ai-text" id="zh-ai-t"></div>
+    <button class="btn btn-ghost btn-sm mt8" onclick="saveZhInspo()">💾 保存到收藏</button>
+  </div>
+</div></div>
+
+<!-- ══ 添加丝线 Modal ═══════════════════════════════ -->
+<div class="modal" id="m-th" onclick="closeM('m-th')">
+<div class="modal-sheet" onclick="event.stopPropagation()">
+  <div class="modal-handle"></div>
+  <div class="modal-title">添加丝线 · 材料</div>
+  <div class="upload-zone">
+    <input type="file" accept="image/*" onchange="onThImg(event)">
+    <div class="uz-ico">📷</div>
+    <div class="uz-txt">拍丝线盒照片</div>
+    <div class="uz-sub">AI 识别每个格子的颜色，生成对照地图</div>
+  </div>
+  <img id="th-img" class="upload-preview" style="display:none">
+  <div class="ai-box mt12" id="th-ai" style="display:none">
+    <div class="ai-lbl">✦ 丝线格子地图</div>
+    <div class="ai-text" id="th-ai-t" style="margin-bottom:8px"></div>
+    <div id="th-grid-map" style="margin-bottom:10px"></div>
+    <div id="th-swatches" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+  </div>
+  <div id="th-batch" style="display:none;margin-top:12px">
+    <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:6px">识别到的颜色</div>
+    <div id="th-batch-list"></div>
+    <label class="lbl">库存状态</label>
+    <select id="th-stock-b"><option value="有">充足</option><option value="少">剩余不多</option><option value="无">已用完</option></select>
+    <button class="btn btn-b mt8" onclick="saveBatch()">全部添加到丝线库 ✓</button>
+  </div>
+  <div class="divider mt12"></div>
+  <div style="font-size:12px;color:var(--text3);margin-bottom:8px">或手动添加单个</div>
+  <label class="lbl" style="margin-top:0">类型</label>
+  <select id="th-type"><option>蚕丝线</option><option>棉线</option><option>金线</option><option>银线</option><option>丝带</option><option>铜丝</option><option>其他</option></select>
+  <label class="lbl">颜色名称</label>
+  <input type="text" id="th-name" placeholder="例：胭脂红、藕荷、松花绿">
+  <label class="lbl">从色板选色</label>
+  <div class="cp-grid" id="th-cp"></div>
+  <div id="th-bar-wrap" style="height:0;overflow:hidden;transition:height .15s">
+    <div id="th-bar" style="height:32px;border-radius:8px;border:1px solid var(--border);margin-top:8px"></div>
+  </div>
+  <label class="lbl">库存</label>
+  <select id="th-stock"><option value="有">充足</option><option value="少">剩余不多</option><option value="无">已用完</option></select>
+  <label class="lbl">备注</label>
+  <input type="text" id="th-note" placeholder="品牌 / 编号（可选）">
+  <button class="btn btn-b mt12" onclick="saveTh()">保存</button>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+//  配色常量
+// ══════════════════════════════════════════
+const SC = {
+  '宋制':'#dceefa','明制':'#fae8f0','唐制':'#eee8f8',
+  '魏晋':'#eef5ee','汉元素':'#fdf5e8','其他':'#f5fbff'
+};
+const EMOJIS = ['🌸','🦋','🌿','🌺','🍃','✨','🌙','🌼','🎋','💮','🌷','🍀'];
+const SWATCH_DEFS = [
+  {n:'胭脂红',h:'#C0392B'},{n:'朱砂',h:'#E74C3C'},{n:'珊瑚',h:'#E8856A'},
+  {n:'杏色',h:'#EDAA7A'},{n:'缃黄',h:'#E8C97A'},{n:'鹅黄',h:'#F5E876'},
+  {n:'松花绿',h:'#7BA17B'},{n:'翠色',h:'#3D9A6A'},{n:'天青',h:'#6AAFB8'},
+  {n:'石青',h:'#2E6B8F'},{n:'靛蓝',h:'#2E4080'},{n:'藏青',h:'#1B3A5C'},
+  {n:'藕荷',h:'#C9A0C8'},{n:'绛紫',h:'#6B2D5E'},{n:'月白',h:'#C8D8E4'},
+  {n:'霞粉',h:'#F4A0A0'},{n:'烟灰',h:'#8A8880'},{n:'赭石',h:'#A0522D'},
+  {n:'象牙',h:'#F5F0E0'},{n:'金色',h:'#C8A840'},{n:'银色',h:'#C0C0C0'},
+  {n:'墨黑',h:'#2A2A2A'},{n:'棕色',h:'#7B4F2A'},{n:'蟹壳青',h:'#7ABAAA'},
+];
+
+// ══════════════════════════════════════════
+//  数据层
+// ══════════════════════════════════════════
+let wardrobe  = JSON.parse(localStorage.getItem('hf_w') || '[]');
+let threads   = JSON.parse(localStorage.getItem('hf_t') || '[]');
+let inspo     = JSON.parse(localStorage.getItem('hf_i') || '[]');
+
+function save(){
+  localStorage.setItem('hf_w', JSON.stringify(wardrobe));
+  localStorage.setItem('hf_t', JSON.stringify(threads));
+  localStorage.setItem('hf_i', JSON.stringify(inspo));
+}
+
+// ══════════════════════════════════════════
+//  工具函数
+// ══════════════════════════════════════════
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2200);
+}
+function openM(id){document.getElementById(id).classList.add('open')}
+function closeM(id){document.getElementById(id).classList.remove('open')}
+
+function go(name, btn){
+  document.querySelectorAll('.screen').forEach(s=>s.style.display='none');
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('s-'+name).style.display='block';
+  btn.classList.add('on');
+  render(name);
+}
+function render(n){
+  if(n==='wardrobe') renderWardrobe();
+  if(n==='zhanghua') renderZhanghua();
+  if(n==='match')    renderMatch();
+  if(n==='threads')  renderThreads();
+  if(n==='inspo')    renderInspo();
+}
+
+function toB64(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>res(r.result.split(',')[1]);
+    r.onerror=rej; r.readAsDataURL(file);
+  });
+}
+
+async function ai(msgs){
+  const key=localStorage.getItem('hf_key')||'';
+  if(!key||key==='YOUR_KEY'){
+    const k=prompt('请输入 Claude API Key（sk- 开头）\n只存在本机，不会上传：');
+    if(k&&k.length>10){localStorage.setItem('hf_key',k);toast('Key 已保存 ✓');}
+    else throw new Error('no key');
+  }
+  const r=await fetch('https://aihubmix.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':localStorage.getItem('hf_key')},
+    body:JSON.stringify({model:'claude-opus-4-5',max_tokens:1200,messages:msgs})
+  });
+  if(!r.ok) throw new Error('API '+r.status);
+  const d=await r.json();
+  return d.content?.map(c=>c.text||'').join('')||'';
+}
+
+function imgMsgs(b64,txt){
+  return [{role:'user',content:[
+    {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+    {type:'text',text:txt}
+  ]}];
+}
+function txtMsgs(txt){return [{role:'user',content:txt}];}
+
+// ══════════════════════════════════════════
+//  衣柜页
+// ══════════════════════════════════════════
+let _hfB64=null, _buyB64=null;
+
+function renderWardrobe(){
+  const s=document.getElementById('s-wardrobe');
+  const styles=new Set(wardrobe.map(h=>h.style));
+  s.innerHTML=`
+  <div class="art-header">
+    <svg viewBox="0 0 480 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 40 Q120 0 240 20 Q360 40 480 10 L480 40Z" fill="#f5fbff" opacity=".9"/>
+      <path d="M0 40 Q100 10 200 25 Q320 42 480 18 L480 40Z" fill="#f5fbff"/>
+    </svg>
+  </div>
+  <div class="ph" style="padding-top:14px">
+    <div class="ph-title">我的汉服衣柜</div>
+    <div class="ph-sub">共 ${wardrobe.length} 件 · ${styles.size} 种制式</div>
+  </div>
+  <div class="sec">
+    <div class="stats">
+      <div class="stat stat-b"><div class="stat-n">${wardrobe.length}</div><div class="stat-l">件汉服</div></div>
+      <div class="stat stat-v"><div class="stat-n">${styles.size}</div><div class="stat-l">种制式</div></div>
+      <div class="stat stat-p"><div class="stat-n">${new Set(wardrobe.map(h=>h.color)).size}</div><div class="stat-l">个主色</div></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="sec-label" style="margin:0">全部汉服</div>
+      <div class="btn-row" style="gap:6px">
+        <button class="btn btn-p btn-sm" onclick="openBuy()">🛍️ 购买参考</button>
+        <button class="btn btn-b btn-sm" onclick="openAddHf()">+ 添加</button>
+      </div>
+    </div>
+    <div class="wgrid" id="wgrid"></div>
+    ${wardrobe.length>=2?`<button class="btn mt12" onclick="doAnalyze()" id="analyze-btn">✦ AI 分析我的衣橱</button>
+    <div class="ai-box mt12" id="wai" style="display:none"><div class="ai-lbl">✦ 衣橱分析</div><div class="ai-text" id="wai-t"></div></div>`:''}
+  </div>`;
+  const grid=document.getElementById('wgrid');
+  wardrobe.forEach(h=>{
+    const card=document.createElement('div'); card.className='hf-card';
+    const bg=SC[h.style]||'#f5fbff';
+    card.innerHTML=`
+      <div class="hf-thumb" style="background:${bg}">
+        ${h.img?`<img src="data:image/jpeg;base64,${h.img}">`:`<span>${h.emoji||'🌸'}</span>`}
+        <button class="hf-del" onclick="delHf(${h.id});event.stopPropagation()">×</button>
+      </div>
+      <div class="hf-info">
+        <div class="hf-name">${h.name}</div>
+        <div class="hf-meta">${h.style} · ${h.color||'色调未填'}</div>
+        ${(h.skirtLen||h.skirtW)?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${h.skirtLen?'裙长'+h.skirtLen+'cm ':''} ${h.skirtW?'裙门宽'+h.skirtW+'cm':''}</div>`:''}
+      </div>`;
+    card.onclick=()=>gotoMatch(h);
+    grid.appendChild(card);
+  });
+  const add=document.createElement('div'); add.className='add-card';
+  add.innerHTML='<div style="font-size:26px">+</div><div>添加汉服</div>';
+  add.onclick=openAddHf; grid.appendChild(add);
+}
+
+function openAddHf(){
+  _hfB64=null;
+  document.getElementById('hf-img').style.display='none';
+  document.getElementById('hf-ai').style.display='none';
+  ['hf-name','hf-color','hf-occ','hf-desc','hf-skirtlen','hf-skirtw'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('hf-style').value='';
+  openM('m-hf');
+}
+
+async function onHfImg(e){
+  const f=e.target.files[0]; if(!f) return;
+  _hfB64=await toB64(f);
+  const img=document.getElementById('hf-img');
+  img.src='data:image/jpeg;base64,'+_hfB64; img.style.display='block';
+  const box=document.getElementById('hf-ai'), txt=document.getElementById('hf-ai-t');
+  box.style.display='block'; txt.innerHTML='<span class="loading">识别中…</span>';
+  try{
+    const r=await ai(imgMsgs(_hfB64,`分析汉服图片，返回JSON（只返回JSON）：{"name":"颜色+制式+款式(10字内)","style":"宋制/明制/唐制/魏晋/汉元素/其他","color":"主色调中文名","occasions":"适合场合逗号分隔","desc":"款式特点50字内","tip":"搭配建议20字内"}`));
+    const d=JSON.parse(r.replace(/```json|```/g,'').trim());
+    if(!document.getElementById('hf-name').value) document.getElementById('hf-name').value=d.name||'';
+    if(d.style) document.getElementById('hf-style').value=d.style;
+    if(!document.getElementById('hf-color').value) document.getElementById('hf-color').value=d.color||'';
+    if(!document.getElementById('hf-occ').value) document.getElementById('hf-occ').value=d.occasions||'';
+    if(!document.getElementById('hf-desc').value) document.getElementById('hf-desc').value=d.desc||'';
+    txt.textContent=`制式：${d.style} · 主色：${d.color}\n建议：${d.tip||''}`;
+  }catch{txt.textContent='识别失败，请手动填写';}
+}
+
+function saveHf(){
+  const name=document.getElementById('hf-name').value.trim();
+  if(!name){toast('给汉服起个名字吧～');return;}
+  wardrobe.push({id:Date.now(),name,style:document.getElementById('hf-style').value||'其他',color:document.getElementById('hf-color').value.trim()||'未知',occasions:document.getElementById('hf-occ').value.trim(),desc:document.getElementById('hf-desc').value.trim(),skirtLen:document.getElementById('hf-skirtlen').value.trim(),skirtW:document.getElementById('hf-skirtw').value.trim(),emoji:EMOJIS[wardrobe.length%EMOJIS.length],img:_hfB64});
+  save(); closeM('m-hf'); renderWardrobe(); toast('已添加到衣柜 ✓');
+}
+function delHf(id){if(!confirm('确认删除？'))return; wardrobe=wardrobe.filter(h=>h.id!==id); save(); renderWardrobe(); toast('已删除');}
+
+async function doAnalyze(){
+  const btn=document.getElementById('analyze-btn'), box=document.getElementById('wai'), txt=document.getElementById('wai-t');
+  btn.disabled=true; box.style.display='block'; txt.innerHTML='<span class="loading">分析中…</span>';
+  const sum=wardrobe.map(h=>`${h.name}（${h.style}，${h.color}，场合：${h.occasions||'未填'}）`).join('\n');
+  try{const r=await ai(txtMsgs(`汉服衣橱顾问。衣橱共${wardrobe.length}件：\n${sum}\n\n请分析：1）整体色彩风格特点；2）哪些制式或颜色过多或欠缺；3）三条具体优化建议。温和亲切，200字内。`));
+  txt.textContent=r;}catch{txt.textContent='分析失败，请检查 API Key';}
+  btn.disabled=false;
+}
+
+// ── 购买建议 ──
+function openBuy(){
+  _buyB64=null;
+  document.getElementById('buy-img').style.display='none';
+  document.getElementById('buy-desc').value='';
+  document.getElementById('buy-ai').style.display='none';
+  openM('m-buy');
+}
+async function onBuyImg(e){
+  const f=e.target.files[0]; if(!f) return;
+  _buyB64=await toB64(f);
+  const img=document.getElementById('buy-img');
+  img.src='data:image/jpeg;base64,'+_buyB64; img.style.display='block';
+}
+async function doBuy(){
+  const btn=document.getElementById('buy-btn'), box=document.getElementById('buy-ai'), txt=document.getElementById('buy-ai-t');
+  const desc=document.getElementById('buy-desc').value.trim();
+  if(!desc&&!_buyB64){toast('请上传图片或填写描述');return;}
+  btn.disabled=true; box.style.display='block'; txt.innerHTML='<span class="loading">分析中…</span>';
+  const ws=wardrobe.length>0?'现有衣橱：\n'+wardrobe.map(h=>`${h.name}（${h.style}，${h.color}）`).join('\n'):'暂未录入衣橱。';
+  const prompt=`${ws}\n\n想购买：${desc||'见图片'}\n\n从：1）与衣橱互补性；2）颜色/制式是否重复；3）实用性，给出建议，最终明确是否推荐购买。200字内，亲切直接。`;
+  try{
+    const r=_buyB64?await ai(imgMsgs(_buyB64,prompt)):await ai(txtMsgs(prompt));
+    txt.textContent=r;
+  }catch{txt.textContent='出错了，请重试';}
+  btn.disabled=false;
+}
+
+// ══════════════════════════════════════════
+//  缠花页
+// ══════════════════════════════════════════
+let _zhB64=null, _zhResult=null;
+const ZH_STYLES=['清雅素净','华丽浓艳','淡彩水墨','撞色活泼','同色系渐变'];
+
+function renderZhanghua(){
+  const s=document.getElementById('s-zhanghua');
+  s.innerHTML=`
+  <div class="ph">
+    <div class="ph-title">缠花配色</div>
+    <div class="ph-sub">上传图纸 · 结合丝线库 · AI 给配色方案</div>
+  </div>
+  <div class="sec">
+    <button class="btn btn-v" style="margin-bottom:12px" onclick="openZh()">📄 上传图纸 · 开始配色</button>
+
+    <div class="sec-label">快速配色 · 无需图纸</div>
+    <div class="card">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:8px">选主色，生成搭配方案</div>
+      <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px" id="q-swatches"></div>
+      <select id="q-type" style="margin-bottom:8px"><option value="">不限题材</option><option>梅花</option><option>蝴蝶</option><option>牡丹</option><option>流苏</option><option>鸟羽</option><option>竹叶</option></select>
+      <button class="btn btn-v" onclick="doQuick()" id="q-btn">生成配色 ↗</button>
+      <div class="ai-box ai-box-v mt12" id="q-ai" style="display:none">
+        <div class="ai-lbl ai-lbl-v">✦ 配色方案</div>
+        <div class="pal-row" id="q-pal"></div>
+        <div class="ai-text" id="q-ai-t"></div>
+        <button class="btn btn-ghost btn-sm mt8" onclick="saveQInspo()">💾 保存</button>
+      </div>
+    </div>
+  </div>`;
+
+  let _qs=null;
+  const row=document.getElementById('q-swatches');
+  SWATCH_DEFS.forEach(sw=>{
+    const el=document.createElement('div');
+    el.style.cssText=`width:34px;height:34px;border-radius:50%;background:${sw.h};cursor:pointer;border:2px solid transparent;transition:transform .12s;flex-shrink:0`;
+    el.title=sw.n; el.dataset.n=sw.n; el.dataset.h=sw.h;
+    el.onclick=()=>{
+      row.querySelectorAll('div').forEach(d=>{d.style.borderColor='transparent';d.style.transform='';});
+      el.style.borderColor='var(--blue-dark)'; el.style.transform='scale(1.12)';
+      window._qSwatch=sw;
+    };
+    row.appendChild(el);
+  });
+}
+
+async function doQuick(){
+  const s=window._qSwatch;
+  if(!s){toast('请先选择主色');return;}
+  const btn=document.getElementById('q-btn'),box=document.getElementById('q-ai'),pal=document.getElementById('q-pal'),txt=document.getElementById('q-ai-t');
+  btn.disabled=true; box.style.display='block'; pal.innerHTML=''; txt.innerHTML='<span class="loading">调配中…</span>';
+  const type=document.getElementById('q-type').value;
+  const ts=threads.length>0?'用户已有丝线：'+threads.map(t=>`${t.name}(${t.hex})`).join('、'):'';
+  const prompt=`缠花配色专家。主色：${s.n}（${s.h}）${type?'，题材：'+type:''}。${ts}\n返回JSON（只返回JSON）：{"colors":[{"name":"中文色名","hex":"#RRGGBB","role":"主色/配色/点缀","has":true或false}],"theme":"推荐题材","tip":"配线技巧","logic":"配色逻辑"}\n共4-5色，has根据用户丝线库判断。`;
+  try{
+    const r=await ai(txtMsgs(prompt));
+    const d=JSON.parse(r.replace(/```json|```/g,'').trim());
+    window._lastQuick=d;
+    pal.innerHTML=d.colors.map(c=>`<div class="pal-chip"><div class="pal-circle" style="background:${c.hex}${c.has?';outline:2px solid #3a9a6a;outline-offset:2px':''}"></div><div class="pal-role">${c.role}</div><div class="pal-name">${c.name}${c.has?' ✓':''}</div></div>`).join('');
+    txt.textContent=`${d.logic}\n\n推荐题材：${d.theme}\n\n${d.tip}`;
+  }catch{txt.textContent='出错了，请重试';}
+  btn.disabled=false;
+}
+function saveQInspo(){
+  const d=window._lastQuick; if(!d) return;
+  const title=prompt('给这个配色方案取个名字：')||'缠花配色';
+  inspo.unshift({id:Date.now(),title,sub:d.colors?.map(c=>c.name).join('·'),text:document.getElementById('q-ai-t').textContent,bg:'#eee8f8',emoji:'🎨'});
+  save(); toast('已保存 ✓');
+}
+
+function openZh(){
+  _zhB64=null; _zhResult=null;
+  document.getElementById('zh-img').style.display='none';
+  document.getElementById('zh-ai').style.display='none';
+  document.getElementById('zh-type').value='';
+  const tags=document.getElementById('zh-style-tags'); tags.innerHTML='';
+  ZH_STYLES.forEach(s=>{const el=document.createElement('span');el.className='tag';el.textContent=s;el.onclick=()=>el.classList.toggle('on-v');tags.appendChild(el);});
+  const sel=document.getElementById('zh-hf-ref'); sel.innerHTML='<option value="">不参考，自由配色</option>';
+  wardrobe.forEach(h=>{const o=document.createElement('option');o.value=h.id;o.textContent=`${h.name}（${h.color}）`;sel.appendChild(o);});
+  openM('m-zh');
+}
+async function onZhImg(e){
+  const f=e.target.files[0]; if(!f) return;
+  _zhB64=await toB64(f);
+  const img=document.getElementById('zh-img');
+  img.src='data:image/jpeg;base64,'+_zhB64; img.style.display='block';
+}
+async function doZh(){
+  if(!_zhB64){toast('请先上传图纸');return;}
+  const btn=document.getElementById('zh-btn'),box=document.getElementById('zh-ai'),pal=document.getElementById('zh-pal'),txt=document.getElementById('zh-ai-t');
+  const coloredWrap=document.getElementById('zh-colored-img'), coloredImg=document.getElementById('zh-result-img');
+  btn.disabled=true; box.style.display='block'; pal.innerHTML=''; coloredWrap.style.display='none';
+  txt.innerHTML='<span class="loading">分析图纸，调配颜色…</span>';
+  const type=document.getElementById('zh-type').value;
+  const hfId=document.getElementById('zh-hf-ref').value;
+  const hfRef=hfId?wardrobe.find(h=>h.id==hfId):null;
+
+  // Only use threads that are in stock
+  const availThreads=threads.filter(t=>t.stock!=='无');
+  const ts=availThreads.length>0
+    ?'用户现有丝线（只能用这些颜色，不要推荐没有的）：'+availThreads.map(t=>`${t.name}(${t.hex})`).join('、')
+    :'用户未录入丝线库，请用常见传统色推荐3-4种';
+
+  const colorPrompt=`你是缠花涂色专家。请分析这张缠花线稿图纸的各个区域，${type?'题材：'+type+'，':''}${hfRef?'搭配汉服：'+hfRef.name+'（'+hfRef.color+'色），':''}${ts}。
+
+重要：${availThreads.length>0?'只能从用户现有丝线中选色，不要推荐没有的颜色。':'请推荐3-4种传统色。'}
+
+返回JSON（只返回JSON）：
+{"parts":[{"part":"区域名称","color":"颜色名","hex":"#RRGGBB"}],"tip":"一句话缠绕建议"}`;
+
+  try{
+    const r=await ai(imgMsgs(_zhB64,colorPrompt));
+    const d=JSON.parse(r.replace(/```json|```/g,'').trim()); _zhResult=d;
+
+    // Show palette chips
+    pal.innerHTML=(d.parts||[]).map(p=>`<div class="pal-chip"><div class="pal-circle" style="background:${p.hex}"></div><div class="pal-role">${p.part}</div><div class="pal-name">${p.color}</div></div>`).join('');
+
+    // Generate colored image using canvas
+    txt.innerHTML='<span class="loading">生成涂色效果图…</span>';
+    const coloredB64=await colorizeImage(_zhB64, d.parts||[]);
+    if(coloredB64){
+      coloredImg.src='data:image/png;base64,'+coloredB64;
+      coloredWrap.style.display='block';
+    }
+    txt.textContent=d.tip||'配色完成！';
+
+  }catch(e){txt.textContent='分析失败，请重试（'+e.message+'）';}
+  btn.disabled=false;
+}
+
+async function colorizeImage(b64, parts){
+  return new Promise((resolve)=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      canvas.width=img.width; canvas.height=img.height;
+      const ctx=canvas.getContext('2d');
+      // Draw original image
+      ctx.drawImage(img,0,0);
+      // Get image data and apply colors based on brightness regions
+      const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
+      const data=imageData.data;
+      const colors=parts.map(p=>hexToRgb(p.hex)).filter(Boolean);
+      if(colors.length===0){resolve(null);return;}
+
+      // Simple colorization: replace non-dark pixels with region colors
+      // Divide image into vertical bands based on number of colors
+      const bandW=Math.floor(canvas.width/colors.length);
+      for(let i=0;i<data.length;i+=4){
+        const r=data[i],g=data[i+1],b=data[i+2];
+        const brightness=(r+g+b)/3;
+        // Only colorize light/medium areas (not the dark lines)
+        if(brightness>80){
+          const pixelIdx=(i/4);
+          const x=pixelIdx%canvas.width;
+          const bandIdx=Math.min(Math.floor(x/bandW),colors.length-1);
+          const c=colors[bandIdx];
+          // Blend with original
+          data[i]=Math.round(r*0.3+c.r*0.7);
+          data[i+1]=Math.round(g*0.3+c.g*0.7);
+          data[i+2]=Math.round(b*0.3+c.b*0.7);
+        }
+      }
+      ctx.putImageData(imageData,0,0);
+      const result=canvas.toDataURL('image/png').split(',')[1];
+      resolve(result);
+    };
+    img.onerror=()=>resolve(null);
+    img.src='data:image/jpeg;base64,'+b64;
+  });
+}
+
+function hexToRgb(hex){
+  const result=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result?{r:parseInt(result[1],16),g:parseInt(result[2],16),b:parseInt(result[3],16)}:null;
+}
+function saveZhInspo(){
+  const title=prompt('给这个配色方案取个名字：')||'缠花配色';
+  inspo.unshift({id:Date.now(),title,sub:new Date().toLocaleDateString('zh-CN'),text:document.getElementById('zh-ai-t').textContent,bg:'#eee8f8',emoji:'🌸'});
+  save(); toast('已保存 ✓');
+}
+
+// ══════════════════════════════════════════
+//  上身效果
+// ══════════════════════════════════════════
+let _tryonB64=null;
+
+function openTryon(){
+  _tryonB64=null;
+  document.getElementById('tryon-img').style.display='none';
+  document.getElementById('tryon-ai').style.display='none';
+  document.getElementById('tryon-desc').value='';
+  const sel=document.getElementById('tryon-hf-sel');
+  sel.innerHTML='<option value="">请选择</option>';
+  wardrobe.forEach(h=>{const o=document.createElement('option');o.value=h.id;o.textContent=`${h.name}（${h.style}·${h.color}${h.skirtLen?'·裙长'+h.skirtLen+'cm':''}）`;sel.appendChild(o);});
+  openM('m-tryon');
+}
+
+async function onTryonImg(e){
+  const f=e.target.files[0]; if(!f) return;
+  _tryonB64=await toB64(f);
+  const img=document.getElementById('tryon-img');
+  img.src='data:image/jpeg;base64,'+_tryonB64; img.style.display='block';
+}
+
+async function doTryon(){
+  const btn=document.getElementById('tryon-btn'),box=document.getElementById('tryon-ai'),txt=document.getElementById('tryon-ai-t');
+  if(!_tryonB64){toast('请先上传你的照片');return;}
+  const selId=document.getElementById('tryon-hf-sel').value;
+  const selHf=selId?wardrobe.find(h=>h.id==selId):null;
+  const desc=document.getElementById('tryon-desc').value.trim();
+  const hfDesc=selHf?`${selHf.name}（${selHf.style}，${selHf.color}色${selHf.skirtLen?'，裙长'+selHf.skirtLen+'cm':''}${selHf.skirtW?'，裙门宽'+selHf.skirtW+'cm':''}${selHf.desc?'，'+selHf.desc:''}）`:desc||'所选汉服';
+  btn.disabled=true; box.style.display='block';
+  txt.innerHTML='<span class="loading">分析中…</span>';
+  const prompt=`你是汉服穿搭顾问。请根据照片中人物的身材特征，分析穿上"${hfDesc}"的效果。
+请从以下角度描述：
+1. 裙长是否合适（根据身高腿长比例判断）
+2. 整体视觉效果（显高/显瘦/比例感）
+3. 这个制式/颜色适不适合这个身材
+4. 一个具体的穿着小建议（比如腰带位置、内搭选择）
+语气温和，100字以内，直接说结论不废话。`;
+  try{
+    const r=await ai(imgMsgs(_tryonB64,prompt));
+    txt.textContent=r;
+  }catch{txt.textContent='分析失败，请重试';}
+  btn.disabled=false;
+}
+
+// ══════════════════════════════════════════
+//  搭配页
+// ══════════════════════════════════════════
+const OCCS=['日常','花朝节','茶会','婚礼','节日','古风摄影','汉服出行'];
+const STYS=['清雅素净','华丽端庄','飘逸仙气','甜美可爱','复古庄重'];
+let _matchHf=null, _lastMatch='';
+
+function renderMatch(){
+  const s=document.getElementById('s-match');
+  s.innerHTML=`
+  <div class="ph">
+    <div class="ph-title">AI 搭配建议</div>
+    <div class="ph-sub">发饰 · 妆容 · 配件 · 缠花推荐</div>
+  </div>
+  <div class="sec">
+    ${wardrobe.length>0?`<div class="sec-label">从衣柜选一件</div>
+    <div class="hscroll" id="hf-picks" style="margin-bottom:12px"></div>`:''}
+    <div class="card">
+      <label class="lbl" style="margin-top:0">描述 / 补充</label>
+      <textarea id="match-desc" placeholder="描述汉服颜色制式、想穿去哪里，或者你的困惑…"></textarea>
+      <label class="lbl">场合</label>
+      <div class="tags" id="match-occs"></div>
+      <label class="lbl">风格偏好</label>
+      <div class="tags" id="match-stys"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-b flex1" onclick="doMatch()" id="match-btn">✦ 获取搭配建议</button>
+      <button class="btn btn-v btn-sm" onclick="openTryon()">👤 上身效果</button>
+    </div>
+    <div class="ai-box mt12" id="match-ai" style="display:none">
+      <div class="ai-lbl">✦ 搭配方案</div>
+      <div class="ai-text" id="match-ai-t"></div>
+      <button class="btn btn-ghost btn-sm mt8" onclick="saveMatchInspo()">💾 保存到收藏</button>
+    </div>
+  </div>`;
+
+  // Wardrobe scroll picks
+  if(wardrobe.length>0){
+    const row=document.getElementById('hf-picks');
+    wardrobe.forEach(h=>{
+      const el=document.createElement('div'); el.className='hf-pick'; el.id='mp-'+h.id;
+      const bg=SC[h.style]||'#f5fbff';
+      el.innerHTML=`<div class="hf-pick-thumb" style="background:${bg}">${h.img?`<img src="data:image/jpeg;base64,${h.img}">`:`<span>${h.emoji||'🌸'}</span>`}</div><div class="hf-pick-name">${h.name}</div>`;
+      el.onclick=()=>{
+        document.querySelectorAll('.hf-pick').forEach(p=>p.classList.remove('on'));
+        el.classList.add('on'); _matchHf=h;
+        document.getElementById('match-desc').value=`${h.name}（${h.style}，${h.color}色）${h.desc?'，'+h.desc:''}`;
+      };
+      row.appendChild(el);
+    });
+  }
+
+  // Tag rows
+  const occRow=document.getElementById('match-occs');
+  OCCS.forEach(o=>{const el=document.createElement('span');el.className='tag';el.textContent=o;el.onclick=()=>el.classList.toggle('on');occRow.appendChild(el);});
+  const styRow=document.getElementById('match-stys');
+  STYS.forEach(s=>{const el=document.createElement('span');el.className='tag';el.textContent=s;el.onclick=()=>el.classList.toggle('on-v');styRow.appendChild(el);});
+}
+
+function gotoMatch(h){
+  go('match', document.querySelector('[onclick*="match"]'));
+  setTimeout(()=>{
+    const el=document.getElementById('mp-'+h.id); if(el) el.click();
+  },60);
+}
+
+async function doMatch(){
+  const btn=document.getElementById('match-btn'),box=document.getElementById('match-ai'),txt=document.getElementById('match-ai-t');
+  const desc=document.getElementById('match-desc').value.trim();
+  const occ=[...document.querySelectorAll('#match-occs .on')].map(t=>t.textContent).join('、');
+  const sty=[...document.querySelectorAll('#match-stys .on-v')].map(t=>t.textContent).join('、');
+  if(!desc&&!_matchHf){toast('请描述汉服或从衣柜选一件');return;}
+  btn.disabled=true; box.style.display='block'; txt.innerHTML='<span class="loading">生成搭配中…</span>';
+  const prompt=`你是汉服搭配顾问。用户23岁，热爱宋/明/唐制汉服，也做缠花，审美在提升中。\n汉服：${desc||'已选衣橱'}${occ?'，场合：'+occ:''}${sty?'，风格：'+sty:''}\n\n请分点：1.发型/头饰（具体款式材质）2.妆容（妆效+重点）3.配件 4.色彩注意 5.适合做什么题材的缠花发饰配这套\n温柔具体，不超过280字。`;
+  try{const r=await ai(txtMsgs(prompt)); txt.textContent=r; _lastMatch=r;}catch{txt.textContent='出错了，请重试';}
+  btn.disabled=false;
+}
+function saveMatchInspo(){
+  if(!_lastMatch)return;
+  const title=prompt('给这个搭配取个名字：')||'搭配方案';
+  inspo.unshift({id:Date.now(),title,sub:new Date().toLocaleDateString('zh-CN'),text:_lastMatch,bg:'#fae8f0',emoji:'✨'});
+  save(); toast('已保存 ✓');
+}
+
+// ══════════════════════════════════════════
+//  丝线页
+// ══════════════════════════════════════════
+let _thB64=null, _batchData=[], _selColor=null;
+
+function renderThreads(){
+  const s=document.getElementById('s-threads');
+  const avail=threads.filter(t=>t.stock!=='无');
+  s.innerHTML=`
+  <div class="ph">
+    <div class="ph-title">我的丝线库</div>
+    <div class="ph-sub">共 ${threads.length} 种 · ${avail.length} 种有库存</div>
+  </div>
+  <div class="sec">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="sec-label" style="margin:0">颜色格子</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="toggleThreadView()" id="view-toggle">列表视图</button>
+        <button class="btn btn-v btn-sm" onclick="openTh()">+ 添加</button>
+      </div>
+    </div>
+    ${threads.length===0
+      ?`<div class="empty"><div class="empty-ico">🧵</div><div>还没有丝线记录</div><div style="margin-top:6px;font-size:12px">拍丝线盒照片，AI 自动识别所有格子颜色</div></div>`
+      :`<div id="tgrid-wrap"></div>`}
+  </div>`;
+  if(threads.length>0) renderThreadGrid(false);
+}
+
+let _threadListMode=false;
+function toggleThreadView(){
+  _threadListMode=!_threadListMode;
+  document.getElementById('view-toggle').textContent=_threadListMode?'格子视图':'列表视图';
+  renderThreadGrid(_threadListMode);
+}
+
+function renderThreadGrid(listMode){
+  const wrap=document.getElementById('tgrid-wrap'); if(!wrap) return;
+  if(listMode){
+    wrap.innerHTML='<div style="display:flex;flex-direction:column;gap:8px">'+
+      threads.map(t=>{
+        const sc=t.stock==='有'?'#3a9a6a':t.stock==='少'?'#c09020':'#aaa';
+        const sl=t.stock==='有'?'充足':t.stock==='少'?'不多':'已完';
+        return `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--white);border-radius:10px;border:1px solid var(--border)">
+          <div style="width:40px;height:40px;border-radius:8px;background:${t.hex||'#ccc'};flex-shrink:0;border:1px solid var(--border)"></div>
+          <div style="flex:1"><div style="font-size:14px;font-weight:500;color:var(--text)">${t.name}</div><div style="font-size:11px;color:var(--text3)">${t.type||''}${t.row?` · 第${t.row}行第${t.col}列`:''}</div></div>
+          <div style="font-size:11px;font-weight:500;color:${sc}">${sl}</div>
+          <button onclick="delTh(${t.id})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:2px 4px">×</button>
+        </div>`;
+      }).join('')+'</div>';
+  } else {
+    // Grid view - color boxes like a thread tray
+    const cols=5;
+    let html=`<div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:6px;margin-bottom:12px">`;
+    threads.forEach(t=>{
+      const sc=t.stock==='无'?'opacity:0.35':'';
+      html+=`<div style="position:relative;${sc}" title="${t.name}">
+        <div style="aspect-ratio:1;background:${t.hex||'#ccc'};border-radius:10px;border:1px solid var(--border);cursor:pointer" onclick="showThreadDetail(${t.id})"></div>
+        <div style="font-size:9px;color:var(--text2);text-align:center;margin-top:3px;line-height:1.2;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${t.name.length>4?t.name.slice(0,4)+'…':t.name}</div>
+        ${t.stock==='少'?`<div style="position:absolute;top:2px;right:2px;width:8px;height:8px;background:#c09020;border-radius:50%"></div>`:''}
+        ${t.stock==='无'?`<div style="position:absolute;top:2px;right:2px;width:8px;height:8px;background:#aaa;border-radius:50%"></div>`:''}
+      </div>`;
+    });
+    html+='</div>';
+    html+=`<div style="display:flex;gap:10px;font-size:11px;color:var(--text3);margin-bottom:8px">
+      <span>● 正常</span>
+      <span style="color:#c09020">● 不多</span>
+      <span style="color:#aaa">● 已完</span>
+    </div>`;
+    wrap.innerHTML=html;
+  }
+}
+
+function showThreadDetail(id){
+  const t=threads.find(x=>x.id===id); if(!t) return;
+  const sl=t.stock==='有'?'充足':t.stock==='少'?'剩余不多':'已用完';
+  if(confirm(`${t.name}\n颜色：${t.hex}\n类型：${t.type||'蚕丝线'}\n库存：${sl}${t.row?'\n位置：第'+t.row+'行第'+t.col+'列':''}\n\n点确认删除此丝线`)){
+    delTh(id);
+  }
+}
+
+function openTh(){
+  _thB64=null; _batchData=[]; _selColor=null;
+  document.getElementById('th-img').style.display='none';
+  document.getElementById('th-ai').style.display='none';
+  document.getElementById('th-batch').style.display='none';
+  ['th-name','th-note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('th-type').value='蚕丝线';
+  document.getElementById('th-stock').value='有';
+  document.getElementById('th-bar-wrap').style.height='0';
+  const cp=document.getElementById('th-cp'); cp.innerHTML='';
+  SWATCH_DEFS.forEach(c=>{
+    const el=document.createElement('div'); el.className='cp-dot'; el.style.background=c.h;
+    el.onclick=()=>{cp.querySelectorAll('.cp-dot').forEach(d=>d.classList.remove('on'));el.classList.add('on');_selColor=c;document.getElementById('th-bar').style.background=c.h;document.getElementById('th-bar-wrap').style.height='40px';if(!document.getElementById('th-name').value)document.getElementById('th-name').value=c.n;};
+    cp.appendChild(el);
+  });
+  openM('m-th');
+}
+
+async function onThImg(e){
+  const f=e.target.files[0]; if(!f) return;
+  _thB64=await toB64(f);
+  const img=document.getElementById('th-img');
+  img.src='data:image/jpeg;base64,'+_thB64; img.style.display='block';
+  const box=document.getElementById('th-ai'),txt=document.getElementById('th-ai-t'),
+        gridMap=document.getElementById('th-grid-map'),sw=document.getElementById('th-swatches'),
+        batch=document.getElementById('th-batch'),blist=document.getElementById('th-batch-list');
+  box.style.display='block'; txt.innerHTML='<span class="loading">分析丝线盒，生成格子地图…</span>';
+  gridMap.innerHTML=''; sw.innerHTML=''; batch.style.display='none';
+  try{
+    const prompt=`这是一个丝线收纳盒的照片，里面有多个格子，每个格子放了一个线轴。
+请按照实物中格子的排列顺序（从上到下，从左到右），识别每个格子的丝线颜色。
+返回JSON（只返回JSON）：
+{
+  "cols": 格子列数(整数),
+  "rows": 格子行数(整数),
+  "grid": [
+    {"row":1,"col":1,"name":"中文传统色名","hex":"#RRGGBB"},
+    ...按顺序列出所有格子
+  ],
+  "summary": "一句话总结色系"
+}
+颜色名用中文传统色名（如靛蓝、薰衣草紫、天蓝等），hex尽量准确反映实物颜色。`;
+    const r=await ai(imgMsgs(_thB64,prompt));
+    const d=JSON.parse(r.replace(/```json|```/g,'').trim());
+    const cols=d.cols||5, rows=d.rows||5;
+    _batchData=(d.grid||[]).map(g=>({name:g.name,hex:g.hex,type:'蚕丝线',row:g.row,col:g.col}));
+
+    txt.textContent=d.summary||`识别到 ${_batchData.length} 格丝线`;
+
+    // Build grid map
+    const cellSize=52, gap=4;
+    const mapW=cols*(cellSize+gap)-gap;
+    let gridHTML=`<div style="display:grid;grid-template-columns:repeat(${cols},${cellSize}px);gap:${gap}px;margin:8px 0">`;
+    // Fill grid in order
+    const gridArr=Array(rows).fill(null).map(()=>Array(cols).fill(null));
+    _batchData.forEach(t=>{
+      const r=(t.row||1)-1, c=(t.col||1)-1;
+      if(r>=0&&r<rows&&c>=0&&c<cols) gridArr[r][c]=t;
+    });
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        const t=gridArr[r][c];
+        const idx=_batchData.findIndex(x=>(x.row||1)-1===r&&(x.col||1)-1===c);
+        if(t){
+          gridHTML+=`<div onclick="pickBatch(${idx})" id="trs-${idx}" style="width:${cellSize}px;height:${cellSize}px;background:${t.hex};border-radius:8px;border:2px solid transparent;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px;transition:transform .12s;position:relative" title="${t.name}">
+            <span style="font-size:9px;color:rgba(255,255,255,0.9);text-shadow:0 1px 2px rgba(0,0,0,0.5);text-align:center;line-height:1.2">${t.name.length>4?t.name.slice(0,4):t.name}</span>
+          </div>`;
+        } else {
+          gridHTML+=`<div style="width:${cellSize}px;height:${cellSize}px;background:var(--border);border-radius:8px;opacity:0.3"></div>`;
+        }
+      }
+    }
+    gridHTML+='</div>';
+    gridHTML+=`<div style="font-size:11px;color:var(--text3);text-align:center">↑ 点击格子选色 · 对应实物位置</div>`;
+    gridMap.innerHTML=gridHTML;
+
+    // Also show batch save
+    batch.style.display='block';
+    blist.innerHTML=_batchData.map(t=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)">
+        <div style="width:32px;height:32px;border-radius:6px;background:${t.hex};flex-shrink:0;border:1px solid var(--border)"></div>
+        <div style="flex:1">
+          <div style="font-size:13px;color:var(--text)">${t.name}</div>
+          <div style="font-size:11px;color:var(--text3)">第${t.row}行第${t.col}列</div>
+        </div>
+      </div>`).join('');
+
+  }catch(err){txt.textContent='识别失败，请重试（'+err.message+'）';}
+}
+
+function pickBatch(i){
+  const t=_batchData[i]; if(!t) return;
+  document.querySelectorAll('[id^=trs-]').forEach(el=>{el.style.borderColor='transparent';el.style.transform='';});
+  const el=document.getElementById('trs-'+i); if(el){el.style.borderColor='var(--blue-dark)';el.style.transform='scale(1.12)';}
+  document.getElementById('th-name').value=t.name;
+  document.getElementById('th-type').value=t.type||'蚕丝线';
+  document.getElementById('th-bar').style.background=t.hex;
+  document.getElementById('th-bar-wrap').style.height='40px';
+  _selColor={n:t.name,h:t.hex};
+}
+
+function saveBatch(){
+  if(!_batchData.length) return;
+  const stock=document.getElementById('th-stock-b').value;
+  _batchData.forEach(t=>threads.push({
+    id:Date.now()+Math.random(),
+    name:t.name,type:t.type||'蚕丝线',
+    hex:t.hex,stock,note:'',
+    row:t.row||null,col:t.col||null
+  }));
+  save(); closeM('m-th'); renderThreads(); toast(`已添加 ${_batchData.length} 种丝线 ✓`);
+}
+
+function saveTh(){
+  const name=document.getElementById('th-name').value.trim();
+  if(!name){toast('请填写颜色名称');return;}
+  threads.push({id:Date.now(),name,type:document.getElementById('th-type').value,hex:_selColor?.h||'#cccccc',stock:document.getElementById('th-stock').value,note:document.getElementById('th-note').value.trim()});
+  save(); closeM('m-th'); renderThreads(); toast('已添加 ✓');
+}
+function delTh(id){threads=threads.filter(t=>t.id!==id);save();renderThreads();toast('已删除');}
+
+// ══════════════════════════════════════════
+//  收藏页
+// ══════════════════════════════════════════
+const DEF_INSPO=[
+  {id:'d1',title:'粉白宋制清雅搭',sub:'日常·茶会',text:'',bg:'#dceefa',emoji:'🌸'},
+  {id:'d2',title:'藕荷蝴蝶缠花配色',sub:'淡紫渐变',text:'',bg:'#eee8f8',emoji:'🦋'},
+  {id:'d3',title:'松绿明制踏青搭',sub:'清新·节日',text:'',bg:'#eef5ee',emoji:'🍃'},
+  {id:'d4',title:'胭脂唐风盛装',sub:'花朝节·摄影',text:'',bg:'#fae8f0',emoji:'🌺'},
+];
+
+function renderInspo(){
+  const s=document.getElementById('s-inspo');
+  const all=[...inspo,...DEF_INSPO];
+  s.innerHTML=`
+  <div class="ph">
+    <div class="ph-title">灵感收藏</div>
+    <div class="ph-sub">保存你喜欢的搭配与配色</div>
+  </div>
+  <div class="sec">
+    ${all.length===0?`<div class="empty"><div class="empty-ico">💾</div><div>还没有收藏</div><div style="margin-top:4px">去搭配或缠花页保存吧</div></div>`:`<div class="igrid" id="igrid"></div>`}
+  </div>`;
+  if(all.length>0){
+    const grid=document.getElementById('igrid');
+    all.forEach(item=>{
+      const card=document.createElement('div'); card.className='i-card';
+      card.innerHTML=`<div class="i-thumb" style="background:${item.bg||'#f5fbff'}">${item.emoji||'✨'}</div><div class="i-info"><div class="i-title">${item.title}</div><div class="i-sub">${item.sub||''}</div>${inspo.find(i=>i.id===item.id)?`<button onclick="delInspo('${item.id}');event.stopPropagation()" style="margin-top:5px;font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer;padding:0">删除</button>`:''}
+      </div>`;
+      if(item.text) card.onclick=()=>alert(`${item.title}\n\n${item.text}`);
+      grid.appendChild(card);
+    });
+  }
+}
+function delInspo(id){inspo=inspo.filter(i=>i.id!=id);save();renderInspo();toast('已删除');}
+
+// ══════════════════════════════════════════
+//  初始化
+// ══════════════════════════════════════════
+renderWardrobe();
+
+function resetKey(){
+  const k=prompt('输入新的 API Key：');
+  if(k&&k.length>10){localStorage.setItem('hf_key',k);toast('API Key 已更新 ✓');}
+}
+if(!localStorage.getItem('hf_key')&&!localStorage.getItem('hf_skip')){
+  setTimeout(()=>{
+    if(confirm('欢迎使用汉服助手 🌸\n\n需要设置 Claude API Key 才能使用 AI 功能。现在设置吗？')){
+      const k=prompt('请输入 API Key（aihubmix- 开头（或 sk- 开头））：');
+      if(k&&k.length>10){localStorage.setItem('hf_key',k);toast('API Key 设置成功 ✓');}
+    } else {localStorage.setItem('hf_skip','1');}
+  },700);
+}
+</script>
+</body>
+</html>
